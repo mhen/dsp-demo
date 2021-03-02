@@ -22,12 +22,4 @@ public record DspVertex(String key, Vector2D position, String label)
     public int hashCode() {
         return Objects.hash(key);
     }
-
-    @Override
-    public String toString() {
-        return "Vertex{" +
-                "key = '" + key + '\'' +
-                ", label = '" + label + '\'' +
-                '}';
-    }
 }
