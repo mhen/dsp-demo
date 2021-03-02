@@ -43,13 +43,18 @@ public final class Graph<V, E>
         return adjacencies.get(sourceVertex).get(targetVertex);
     }
 
-    public Boolean hasEdge(V sourceVertex, V targetVertex)
+    public boolean hasVertex(V vertex)
+    {
+        return adjacencies.containsKey(vertex);
+    }
+
+    public boolean hasEdge(V sourceVertex, V targetVertex)
     {
         requireVertexExists(sourceVertex);
         requireVertexExists(targetVertex);
         return adjacencies.get(sourceVertex).containsKey(targetVertex);
     }
-    
+
     public Set<V> getNeighbours(V vertex)
     {
         requireVertexExists(vertex);
