@@ -52,7 +52,35 @@ public final class Vector2D
     }
 
     @Override
-    public String toString() {
-        return "Vector2D{x = " + x + ", y = " + y + '}';
+    public boolean equals(Object o)
+    {
+        if (this == o)
+        {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass())
+        {
+            return false;
+        }
+
+        Vector2D vector2D = (Vector2D) o;
+
+        if (Double.compare(vector2D.x, x) != 0)
+        {
+            return false;
+        }
+        return Double.compare(vector2D.y, y) == 0;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int result;
+        long temp;
+        temp = Double.doubleToLongBits(x);
+        result = (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(y);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        return result;
     }
 }

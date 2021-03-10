@@ -1,5 +1,7 @@
 package gd.geometry;
 
+import java.util.*;
+
 public final class BoundingBox
 {
     private final Vector2D lowerLeft;
@@ -7,8 +9,8 @@ public final class BoundingBox
 
     public BoundingBox(Vector2D lowerLeft, Vector2D upperRight)
     {
-        this.lowerLeft = lowerLeft;
-        this.upperRight = upperRight;
+        this.lowerLeft = Objects.requireNonNull(lowerLeft);
+        this.upperRight = Objects.requireNonNull(upperRight);
     }
 
     public Vector2D getLowerLeft()
@@ -21,7 +23,31 @@ public final class BoundingBox
     }
 
     @Override
-    public String toString() {
-        return "BoundingBox{lowerLeft = " + lowerLeft + ", upperRight = " + upperRight + '}';
+    public boolean equals(Object o)
+    {
+        if (this == o)
+        {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass())
+        {
+            return false;
+        }
+
+        BoundingBox that = (BoundingBox) o;
+
+        if (!Objects.equals(lowerLeft, that.lowerLeft))
+        {
+            return false;
+        }
+        return Objects.equals(upperRight, that.upperRight);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int result = lowerLeft.hashCode();
+        result = 31 * result + upperRight.hashCode();
+        return result;
     }
 }
