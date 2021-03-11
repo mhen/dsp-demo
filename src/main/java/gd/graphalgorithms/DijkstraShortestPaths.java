@@ -3,22 +3,25 @@ package gd.graphalgorithms;
 import gd.graph.*;
 
 import java.util.*;
+import java.util.function.*;
 
-public final class DijkstraShortestPaths
+public final class DijkstraShortestPaths<V, E>
 {
-    private final Graph<DspVertex, DspEdge> graph;
-    private final DspVertex sourceVertex;
+    private final Graph<V, E> graph;
+    private final V sourceVertex;
+    private final Function<E, Double> costFunction;
 
-    private PriorityQueue<DspVertex> priorityQueue;
-    private HashMap<DspVertex, Double> distanceFromSource;
-    private HashMap<DspVertex, DspVertex> previousNode;
-    private HashSet<DspVertex> expandedNodes;
-    private HashMap<DspVertex, DspVertexState> states;
+    private PriorityQueue<V> priorityQueue;
+    private HashMap<V, Double> distanceFromSource;
+    private HashMap<V, V> previousNode;
+    private HashSet<V> expandedNodes;
+    private HashMap<V, VertexState> states;
 
-    public DijkstraShortestPaths(Graph<DspVertex, DspEdge> graph, DspVertex sourceVertex)
+    public DijkstraShortestPaths(Graph<V, E> graph, V sourceVertex, Function<E, Double> costFunction)
     {
         this.graph = graph;
         this.sourceVertex = sourceVertex;
+        this.costFunction = costFunction;
         initialize();
     }
 
@@ -31,15 +34,15 @@ public final class DijkstraShortestPaths
     {
         var currentVertex = priorityQueue.poll();
         expandedNodes.add(currentVertex);
-        states.put(currentVertex, DspVertexState.EXPANDED);
+        states.put(currentVertex, VertexState.EXPANDED);
 
         for (var neighbour : graph.getNeighbours(currentVertex))
         {
             if (!expandedNodes.contains(neighbour))
             {
-                states.put(neighbour, DspVertexState.FRONTIER);
+                states.put(neighbour, VertexState.FRONTIER);
 
-                var tentativeDistance = distanceFromSource.get(currentVertex) + graph.getEdge(currentVertex, neighbour).weight();
+                var tentativeDistance = distanceFromSource.get(currentVertex) + costFunction.apply(graph.getEdge(currentVertex, neighbour));
                 if (tentativeDistance < distanceFromSource.get(neighbour))
                 {
                     distanceFromSource.put(neighbour, tentativeDistance);
@@ -51,9 +54,9 @@ public final class DijkstraShortestPaths
         }
     }
 
-    public List<DspVertex> getShortestPathTo(DspVertex targetVertex)
+    public List<V> getShortestPathTo(V targetVertex)
     {
-        var path = new LinkedList<DspVertex>();
+        var path = new LinkedList<V>();
         if (previousNode.get(targetVertex) == null)
         {
             return path;
@@ -68,31 +71,17 @@ public final class DijkstraShortestPaths
         return path;
     }
 
-    public double getShortestPathCostTo(DspVertex targetVertex)
+    public double getShortestPathCostTo(V targetVertex)
     {
-        if (previousNode.get(targetVertex) == null)
-        {
-            return Double.MAX_VALUE;
-        }
-
-        var currentVertex = targetVertex;
-        var previousVertex = previousNode.get(targetVertex);
-        double totalCost = 0.0;
-        while(previousVertex != null)
-        {
-            totalCost += graph.getEdge(previousVertex, currentVertex).weight();
-            currentVertex = previousVertex;
-            previousVertex = previousNode.get(previousVertex);
-        }
-        return totalCost;
+        return distanceFromSource.getOrDefault(targetVertex, Double.MAX_VALUE);
     }
 
-    public DspVertex getSourceVertex()
+    public V getSourceVertex()
     {
         return sourceVertex;
     }
 
-    public Map<DspVertex, DspVertexState> getState()
+    public Map<V, VertexState> getState()
     {
         return Collections.unmodifiableMap(states);
     }
@@ -109,7 +98,7 @@ public final class DijkstraShortestPaths
         {
             distanceFromSource.put(vertex, Double.MAX_VALUE);
             previousNode.put(vertex, null);
-            states.put(vertex, DspVertexState.PENDING);
+            states.put(vertex, VertexState.PENDING);
         }
 
         if (sourceVertex != null)
@@ -120,9 +109,14 @@ public final class DijkstraShortestPaths
         priorityQueue.addAll(graph.getVertices());
     }
 
-    private void updatePriority(DspVertex priorityQueueEntry)
+    private void updatePriority(V priorityQueueEntry)
     {
         priorityQueue.remove(priorityQueueEntry);
         priorityQueue.add(priorityQueueEntry);
+    }
+
+    public enum VertexState
+    {
+        PENDING, FRONTIER, EXPANDED
     }
 }

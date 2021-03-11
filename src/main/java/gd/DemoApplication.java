@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 public final class DemoApplication extends Application
 {
     private Graph<DspVertex, DspEdge> currentGraph;
-    private DijkstraShortestPaths dijkstraShortestPaths;
+    private DijkstraShortestPaths<DspVertex, DspEdge> dijkstraShortestPaths;
 
     private DspView dspView;
     private SearchableComboBox<DspVertex> sourceVertexSelector;
@@ -55,7 +55,7 @@ public final class DemoApplication extends Application
         currentGraph = TestData.generateTestGraph2();
 
         updateControls();
-        dijkstraShortestPaths = new DijkstraShortestPaths(currentGraph, sourceVertexSelector.getValue());
+        dijkstraShortestPaths = new DijkstraShortestPaths<>(currentGraph, sourceVertexSelector.getValue(), DspEdge::weight);
 
         initializeLayout(stage, canvas);
         draw();
@@ -156,7 +156,7 @@ public final class DemoApplication extends Application
     {
         initializeVertexSelector(sourceVertexSelector, (s, o, n) ->
         {
-            dijkstraShortestPaths = new DijkstraShortestPaths(currentGraph, n);
+            dijkstraShortestPaths = new DijkstraShortestPaths<>(currentGraph, n, DspEdge::weight);
             draw();
         });
         initializeVertexSelector(targetVertexSelector, (s, o, n) -> {
@@ -167,7 +167,7 @@ public final class DemoApplication extends Application
 
     private void reset()
     {
-        dijkstraShortestPaths = new DijkstraShortestPaths(currentGraph, sourceVertexSelector.getValue());
+        dijkstraShortestPaths = new DijkstraShortestPaths<>(currentGraph, sourceVertexSelector.getValue(), DspEdge::weight);
         sourceVertexSelector.setDisable(false);
         draw();
     }
